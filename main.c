@@ -135,6 +135,7 @@ void FireFlower(char *fileName, int nbParticle, float fading,
   // Simulation loop
   float t = 0.0;
   int iFrame = 0;
+  int nbImpact = 0;
   while (flagStop == false) {
     fprintf(stderr, "%.1f       \r", t);
     // Fading
@@ -156,6 +157,7 @@ void FireFlower(char *fileName, int nbParticle, float fading,
     VecShortFree(&pos);
     // For each particle
     elem = particles->_head;
+    iElem = 0;
     while (elem != NULL) {
       Particle *p = (Particle*)(elem->_data);
       // For each target
@@ -165,8 +167,17 @@ void FireFlower(char *fileName, int nbParticle, float fading,
         VecFloat *v = VecGetOp(pT->_pos, 1.0, p->_pos, -1.0);
         float d = VecNorm(v);
         float a = 1.0 / d;
-        //if (d < 0.5)
-          //flagStop = true;
+        if (d < 0.5) {
+          // Impact, change the target
+          ++nbImpact;
+          if (nbImpact == 5)
+            flagStop = true;
+          int jElem = iElem;
+          while (iElem == jElem) 
+            jElem = (int)floor(rnd() * (float)nbParticle);
+          p->_targets[iTarget] = 
+            (Particle*)GSetGet(particles, jElem);
+        }
         VecNormalise(v);
         // Update speed
         VecOp(p->_speed, inertia, v, a);
@@ -195,6 +206,7 @@ void FireFlower(char *fileName, int nbParticle, float fading,
       }
       TGADrawLine(tga, p->_pos, to, p->_pen);
       elem = elem->_next;
+      ++iElem;
     }
     // Move particles
     elem = particles->_head;
