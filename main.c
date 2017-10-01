@@ -66,7 +66,8 @@ void ParticleFree(Particle **p) {
 }
 
 void FireFlower(char *fileName, int nbParticle, float fading, 
-  float speed, float inertia, int nbTarget, float thickness) {
+  float speed, float inertia, int nbTarget, float thickness,
+  float proximity) {
   // Create the TGA
   VecShort *dim = VecShortCreate(2);
   if (dim == NULL) {
@@ -136,6 +137,7 @@ void FireFlower(char *fileName, int nbParticle, float fading,
   float t = 0.0;
   int iFrame = 0;
   int nbImpact = 0;
+  int nbImpactMax = 1 + (int)floor(5.0 * proximity);
   while (flagStop == false) {
     fprintf(stderr, "%.1f       \r", t);
     // Fading
@@ -167,10 +169,10 @@ void FireFlower(char *fileName, int nbParticle, float fading,
         VecFloat *v = VecGetOp(pT->_pos, 1.0, p->_pos, -1.0);
         float d = VecNorm(v);
         float a = 1.0 / d;
-        if (d < 0.5) {
+        if (d < proximity) {
           // Impact, change the target
           ++nbImpact;
-          if (nbImpact == 5)
+          if (nbImpact == nbImpactMax)
             flagStop = true;
           int jElem = iElem;
           while (iElem == jElem) 
@@ -261,16 +263,19 @@ int main(int argc, char **argv) {
   float inertia = 0.01;
   int nbTarget = 3;
   float thickness = 2.0;
+  float proximity = 1.0;
   // Decode arguments
   for (int iArg = 2; iArg < argc; ++iArg) {
     if (strcmp(argv[iArg] , "-rnd") == 0) {
       thickness = 1.0 + rnd() * 4.0;
       inertia = rnd() * 0.03;
       fading = 0.01 + 0.09 * rnd();
+      proximity = 0.01 + 3.99 * rnd();
       nbParticle = 25 + (int)floor(rnd() * 75.0);
       fprintf(stdout, "thickness: %.3f\n", thickness);
       fprintf(stdout, "inertia: %.3f\n", inertia);
       fprintf(stdout, "fading: %.3f\n", fading);
+      fprintf(stdout, "proximity: %.3f\n", proximity);
       fprintf(stdout, "nbParticle: %d\n", nbParticle);
     } else if (strcmp(argv[iArg] , "-thick") == 0 && iArg + 1 < argc) {
       ++iArg;
@@ -281,19 +286,24 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[iArg] , "-fading") == 0 && iArg + 1 < argc) {
       ++iArg;
       sscanf(argv[iArg], "%f", &fading);
+    } else if (strcmp(argv[iArg] , "-prox") == 0 && iArg + 1 < argc) {
+      ++iArg;
+      sscanf(argv[iArg], "%f", &proximity);
     } else if (strcmp(argv[iArg] , "-nb") == 0 && iArg + 1 < argc) {
       ++iArg;
       sscanf(argv[iArg], "%d", &nbParticle);
     } else if (strcmp(argv[iArg] , "-help") == 0) {
       printf("arguments : <filename> [-help] [-rnd] ");
-      printf("[-thick] [-inertia] [-fading] [-nb]\n");
+      printf("[-thick <thickness>] [-inertia <inertia>] "); 
+      printf("[-fading <fading>] [-prox <proximity>] ");
+      printf("[-nb <nbParticle>]\n");
       // Stop here
       return 0;
     }
   }
   // Create the image
   FireFlower(fileName, nbParticle, fading, speed, inertia, nbTarget,
-    thickness);
+    thickness, proximity);
   // Return the success code
   return 0;
 }

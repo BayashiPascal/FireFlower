@@ -23,3 +23,6 @@ valgrind :
 
 video:
 	avconv -r 20 -i ./Frames/frame%03d.tga -b:v 2048k video.mp4
+
+frames:
+	rm ./Frames/*; main out.tga -rnd
