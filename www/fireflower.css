@@ -1,0 +1,38 @@
+/* ============= mozait.css =========== */
+
+body {
+  background-color: #000000;
+  color: #eeeeee;
+}
+
+#divMain {
+  text-align: center;
+}
+
+#divTitle {
+  text-align: center;
+  font-size: 25px;
+  margin: 10px;
+}
+
+#divSubTitle {
+  text-align: center;
+  font-size: 18px;
+}
+
+#imgOut {
+  margin: auto;
+  max-height: 600px;
+  max-width: 600px;
+}
+
+#divFooter {
+  text-align: center;
+  font-size: 15px;
+  margin: auto;
+  margin-top: 20px;
+}
+
+#divFooter a {
+  color: #ff0000;
+}
