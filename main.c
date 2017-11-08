@@ -1,4 +1,4 @@
-// ============ SMOKER.C ================
+// ============ FIREFLOWER.C ================
 
 // ================= Include ==================
 
@@ -60,7 +60,7 @@ Particle* ParticleCreate(int nbTarget, int thickness) {
 void ParticleFree(Particle **p) {
   VecFree(&((*p)->_pos));
   VecFree(&((*p)->_speed));
-  TGAFreePencil(&((*p)->_pen));
+  TGAPencilFree(&((*p)->_pen));
   free(*p);
   *p = NULL;
 }
@@ -77,6 +77,7 @@ void FireFlower(char *fileName, int nbParticle, float fading,
   VecSet(dim, 0, SCREENSIZE);
   VecSet(dim, 1, SCREENSIZE);
   TGAPixel *pixelBg = TGAGetBlackPixel();
+  //TGAPixel *pixelBg = TGAGetWhitePixel();
   if (pixelBg == NULL) {
     fprintf(stderr, "TGAGetBlackPixel failed\n");
     return;
@@ -105,7 +106,7 @@ void FireFlower(char *fileName, int nbParticle, float fading,
     for (int irgb = 3; irgb--;)
       color->_rgba[irgb] = (unsigned char)floor(rnd() * 255.0);
     TGAPencilSetColor(p->_pen, color);
-    TGAFreePixel(&color);
+    TGAPixelFree(&color);
     GSetAppend(particles, p);
   }
   // Set the target of the particles
@@ -151,9 +152,9 @@ void FireFlower(char *fileName, int nbParticle, float fading,
       for (VecSet(pos, 1, 0); VecGet(pos, 1) < SCREENSIZE; 
         VecSet(pos, 1, VecGet(pos, 1) + 1)) {
         TGAPixel *pixel = TGAGetPix(tga, pos);
-        TGAPixel *blend = TGABlendPixel(pixel, pixelBg, fading);
+        TGAPixel *blend = TGAPixelBlend(pixel, pixelBg, fading);
         TGASetPix(tga, pos, blend);
-        TGAFreePixel(&blend);
+        TGAPixelFree(&blend);
       }
     }
     VecShortFree(&pos);
@@ -243,7 +244,7 @@ void FireFlower(char *fileName, int nbParticle, float fading,
   }
   GSetFree(&particles);
   VecFree(&dim);
-  TGAFreePixel(&pixelBg);
+  TGAPixelFree(&pixelBg);
   TGAFree(&tga);
 }
 
